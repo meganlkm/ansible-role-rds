@@ -1,0 +1,25 @@
+---
+# defaults file for ansible-role-rds
+relaunch: False
+date: "{{ ansible_date_time.year }}-{{ ansible_date_time.month }}-{{ ansible_date_time.day }}-{{ ansible_date_time.hour }}-{{ ansible_date_time.minute }}"
+rds_publicly_accessible: no
+rds_snapshot_name: "snapshot-{{ rds_instance_name }}-{{ date }}"
+rds_instance_name: ""
+rds_region: ""
+rds_size: ""
+rds_instance_type: ""
+rds_db_engine: ""
+rds_engine_version: ""
+rds_subnet: {}
+rds_parameter_group: ""
+rds_port: ""
+rds_db_name: ""
+rds_username: ""
+rds_password: ""
+rds_security_groups: []
+rds_iops: ""
+rds_maint_window: ""
+rds_backup_window: ""
+rds_backup_retention: ""
+rds_zone: ""
+rds_tags: {}

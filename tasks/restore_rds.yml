@@ -1,0 +1,52 @@
+---
+- name: Set snapshot name as a fact
+  set_fact:
+    current_snapshot_name: "{{ rds_snapshot_name }}"
+
+- name: Terminate current instances.
+  rds:
+    command: delete
+    region: "{{ rds_region }}"
+    instance_name: "{{ rds_instance_name }}"
+    snapshot: "{{ current_snapshot_name }}"
+    wait: yes
+    wait_timeout: 1800
+  when: relaunch
+  tags: terminate
+
+- name: Restore AWS RDS instance from a snapshot
+  rds:
+    command: restore
+    snapshot: "{{ current_snapshot_name }}"
+    instance_name: "{{ rds_instance_name }}"
+    region: "{{ rds_region }}"
+    instance_type: "{{ rds_instance_type }}"
+    multi_zone: yes
+    iops: "{{ rds_iops }}"
+    maint_window: "{{ rds_maint_window }}"
+    backup_window: "{{ rds_backup_window }}"
+    backup_retention: "{{ rds_backup_retention }}"
+    zone: "{{ rds_zone }}"
+    subnet: "{{ rds_subnet }}"
+    wait: yes
+    wait_timeout: 1800
+    tags: "{{ rds_tags }}" 
+  register: launched_rds
+  tags: restore_rds
+  when: relaunch
+
+- name: Modify restored AWS RDS instance to use correct security group
+  rds:
+    command: modify
+    instance_name: "{{ rds_instance_name }}"
+    region: "{{ rds_region }}"
+    vpc_security_groups: "{{ rds_security_groups }}"
+    wait: yes
+    wait_timeout: 1800
+  tags: restore_rds
+  when: relaunch
+
+- debug:
+    msg: "The new db endpoint is {{ launched_rds.instance.endpoint }}"
+  tags: restore_rds
+  when: relaunch
